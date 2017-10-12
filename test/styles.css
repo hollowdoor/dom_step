@@ -1,0 +1,22 @@
+#vertical li {
+    /*margin: 10px;*/
+}
+#horizontal {
+    padding: 0px;
+    margin: 0px;
+}
+#horizontal li {
+    list-style: none;
+    display: inline;
+    border: 1px solid black;
+    margin: 0px;
+    padding: 0px;
+    position: relative;
+}
+
+#flowing {
+    width: 100px;
+}
+#flowing li {
+    display: inline;
+}
