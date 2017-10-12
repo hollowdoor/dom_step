@@ -1,119 +1,37 @@
-import nextElementSibling from 'dom-next-element-sibling';
-import previousElementSibling from 'dom-previous-element-sibling';
 import rawObject from 'raw-object';
 import localNaN from 'is-nan';
+import nextElementSibling from 'dom-next-element-sibling';
+import previousElementSibling from 'dom-previous-element-sibling';
 
-//traverser
+function isElement(input){
+  return (input != null)
+    && (typeof input === 'object')
+    && (input.nodeType === Node.ELEMENT_NODE)
+    && (typeof input.style === 'object')
+    && (typeof input.ownerDocument === 'object');
+}
 
 var find = rawObject({
     next: nextElementSibling,
     prev: previousElementSibling
 });
 
-var directions = rawObject({
-    left: function left(element, range, traverse){
-        if ( traverse === void 0 ) traverse = 'prev';
-
-        var near = find[traverse];
-        var current = near(element);
-        var ref = getRects(element, current);
-        var rect1 = ref[0];
-        var rect2 = ref[1];
-
-        if(isWest(rect1, rect2, range)){
+function match(isDirection, element, range, traverse){
+    var rect1 = getRect(element);
+    var current = element;
+    var near = find[traverse];
+    while(current = near(current)){
+        var rect2 = getRect(current);
+        if(isDirection(rect1, rect2, range)){
             return current;
         }
-
-        while(current = near(current)){
-            var ref$1 = getRects(current);
-            var rect2$1 = ref$1[0];
-            if(isWest(rect1, rect2$1, range)){
-                return current;
-            }
-        }
-    },
-    up: function up(element, range, traverse){
-        if ( traverse === void 0 ) traverse = 'prev';
-
-        var near = find[traverse];
-        var current = near(element);
-        var ref = getRects(element, current);
-        var rect1 = ref[0];
-        var rect2 = ref[1];
-
-        if(isNorth(rect1, rect2, range)){
-            return current;
-        }
-
-        while(current = near(current)){
-            var ref$1 = getRects(current);
-            var rect2$1 = ref$1[0];
-            if(isNorth(rect1, rect2$1, range)){
-                return current;
-            }
-        }
-    },
-    right: function right(element, range, traverse){
-        if ( traverse === void 0 ) traverse = 'next';
-
-        var near = find[traverse];
-        var current = near(element);
-        var ref = getRects(element, current);
-        var rect1 = ref[0];
-        var rect2 = ref[1];
-
-        if(isEast(rect1, rect2, range)){
-            return current;
-        }
-
-        while(current = near(current)){
-            var ref$1 = getRects(current);
-            var rect2$1 = ref$1[0];
-            if(isEast(rect1, rect2$1, range)){
-                return current;
-            }
-        }
-    },
-    down: function down(element, range, traverse){
-        if ( traverse === void 0 ) traverse = 'next';
-
-        var near = find[traverse];
-        var current = near(element);
-        var ref = getRects(element, current);
-        var rect1 = ref[0];
-        var rect2 = ref[1];
-
-        if(isSouth(rect1, rect2, range)){
-            return current;
-        }
-
-        while(current = near(current)){
-            var ref$1 = getRects(current);
-            var rect2$1 = ref$1[0];
-            if(isSouth(rect1, rect2$1, range)){
-                return current;
-            }
-        }
     }
-});
+}
 
-function step(element, direction, ref){
-    if ( ref === void 0 ) ref = {};
-    var range = ref.range; if ( range === void 0 ) range = 1;
-    var traverse = ref.traverse;
-
-    if(directions[direction] === void 0){
-        throw new TypeError(("direction should be up, down, left, or right. Instead direction is equal to " + direction + "."));
-    }
-
-    if([undefined, 'next', 'prev'].indexOf(traverse) === -1){
-        throw new TypeError(("options.traverse should be \"next\", \"prev\", or undefined. Instead options.traverse is equal to " + traverse + "."));
-    }
-
-    if(localNaN(range)){
-        throw new TypeError(("options.range should be a number. Instead options.range is equal to " + range));
-    }
-    return directions[direction](element, range, traverse);
+//If there are problems with getBoundingClientRect
+//See https://github.com/webmodules/bounding-client-rect
+function getRect(e){
+    return e.getBoundingClientRect();
 }
 
 function isWest(rect1, rect2, range){
@@ -167,15 +85,52 @@ function hCenter(rect){
     return rect.right - rect.left / 2;
 }
 
-function getRects(){
-    var elements = [], len = arguments.length;
-    while ( len-- ) elements[ len ] = arguments[ len ];
+var directions = rawObject({
+    left: function left(element, range, traverse){
+        if ( traverse === void 0 ) traverse = 'prev';
 
-    return elements.map(getRect);
-}
+        return match(isWest, element, range, traverse);
+    },
+    up: function up(element, range, traverse){
+        if ( traverse === void 0 ) traverse = 'prev';
 
-function getRect(e){
-    return e.getBoundingClientRect();
+        return match(isNorth, element, range, traverse);
+    },
+    right: function right(element, range, traverse){
+        if ( traverse === void 0 ) traverse = 'next';
+
+        return match(isEast, element, range, traverse);
+    },
+    down: function down(element, range, traverse){
+        if ( traverse === void 0 ) traverse = 'next';
+
+        return match(isSouth, element, range, traverse);
+    }
+});
+
+function step(element, direction, ref){
+    if ( ref === void 0 ) ref = {};
+    var range = ref.range; if ( range === void 0 ) range = 1;
+    var traverse = ref.traverse;
+
+
+    if(!isElement(element)){
+        throw new TypeError(("element is not a DOM element. Instead element is equal to " + element + "."))
+    }
+
+    if(directions[direction] === void 0){
+        throw new TypeError(("direction should be up, down, left, or right. Instead direction is equal to " + direction + "."));
+    }
+
+    if([undefined, 'next', 'prev'].indexOf(traverse) === -1){
+        throw new TypeError(("options.traverse should be \"next\", \"prev\", or undefined. Instead options.traverse is equal to " + traverse + "."));
+    }
+
+    if(localNaN(range)){
+        throw new TypeError(("options.range should be a number. Instead options.range is equal to " + range));
+    }
+
+    return directions[direction](element, range, traverse);
 }
 
 export default step;
