@@ -63,6 +63,22 @@ To summarize the defaults:
 
 `"up"`/`"left"` = closest previous sibling to the up, or left
 
+### Visual Representation
+
+The black box is the orignal element passed to `step(element, 'up', {range: 10})`. In this case `"up"` was the direction chosen.
+
+The red box is not returned. The green box is returned from `step()`.
+
+The purple dotted lines represent the left/right range a sibling box must be in to be chosen.
+
+The blue rectangle is the range a sibling must overlap to be chosen.
+
+The gold lines represent the boundary a sibling element must cross in order to be chosen.
+
+At the intersection of the purple lines, gold lines, and blue rectangle a sibling element is selected.
+
+![see the github page if you can't see this svg diagram](svg/up1.svg "step up svg diagram")
+
 For certain CSS styles this could be unintuitive. For instance in CSS you can set `flex-direction` to `row-reverse`, or `column-reverse`.
 
 To fix a situation where the visual order of elements is the reverse of the programmatic order of the elements use the `traverse` option.
