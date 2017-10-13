@@ -2,20 +2,23 @@ import rawObject from 'raw-object';
 import localNaN from 'is-nan';
 import isElement from './lib/iselement.js';
 import match from './lib/match.js';
-import { isWest, isNorth, isEast, isSouth } from './lib/compass.js';
+import {
+    isWest, isNorth, isEast, isSouth,
+    westEdge, northEdge, eastEdge, southEdge
+} from './lib/compass.js';
 
 const directions = rawObject({
     left(element, range, traverse = 'prev'){
-        return match(isWest, element, range, traverse);
+        return match(isWest, westEdge, element, range, traverse);
     },
     up(element, range, traverse = 'prev'){
-        return match(isNorth, element, range, traverse);
+        return match(isNorth, northEdge, element, range, traverse);
     },
     right(element, range, traverse = 'next'){
-        return match(isEast, element, range, traverse);
+        return match(isEast, eastEdge, element, range, traverse);
     },
     down(element, range, traverse = 'next'){
-        return match(isSouth, element, range, traverse);
+        return match(isSouth, southEdge, element, range, traverse);
     }
 });
 

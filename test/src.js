@@ -33,7 +33,12 @@ console.log('- flist -')
 one(0, 'right');
 one(0, 'down');
 one(3, 'left');
-one(3, 'up')
+one(3, 'up');
+one(1, 'down');
+one(1, 'left');
+console.log('- edges -');
+one(3, 'down');
+one(1, 'right');
 
 function loop(n, last, fn){
     try{
@@ -44,7 +49,11 @@ function loop(n, last, fn){
 }
 
 function one(index, direction, options){
+
     const el = step(flist[index], direction, options);
+    console.log(direction, ' index ',index,'flowing ', flist[index], ' result ', el);
     //console.log(el)
-    console.log(el.innerHTML);
+    //console.log('arguments ',arguments)
+
+    console.log(el && el.innerHTML);
 }

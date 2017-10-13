@@ -7,12 +7,19 @@ const find = rawObject({
     prev: previousElementSibling
 });
 
-export default function match(isDirection, element, range, traverse){
+export default function match(isDirection, isEdge, element, range, traverse){
     let rect1 = getRect(element);
     let current = element;
     let near = find[traverse];
+    let parent = element.parentNode;
+
+    if(isEdge(rect1, range, parent)){
+        return;
+    }
+
     while(current = near(current)){
         let rect2 = getRect(current);
+
         if(isDirection(rect1, rect2, range)){
             return current;
         }

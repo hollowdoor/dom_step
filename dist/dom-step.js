@@ -422,12 +422,19 @@ var find = rawObject({
     prev: previousElementSibling
 });
 
-function match(isDirection, element, range, traverse){
+function match(isDirection, isEdge, element, range, traverse){
     var rect1 = getRect(element);
     var current = element;
     var near = find[traverse];
+    var parent = element.parentNode;
+
+    if(isEdge(rect1, range, parent)){
+        return;
+    }
+
     while(current = near(current)){
         var rect2 = getRect(current);
+
         if(isDirection(rect1, rect2, range)){
             return current;
         }
@@ -441,29 +448,33 @@ function getRect(e){
 }
 
 function isWest(rect1, rect2, range){
-    if(rect1.left - rect2.right <= range){
-        return hReachable(rect1, rect2);
+    var distance = rect1.left - rect2.right;
+    if(distance > -1 && distance <= range){
+        return vContained(rect1, rect2);
     }
     return false;
 }
 
 function isNorth(rect1, rect2, range){
-    if(rect1.top - rect2.bottom <= range){
-        return vReachable(rect1, rect2);
+    var distance = rect1.top - rect2.bottom;
+    if(distance > -1 && distance <= range){
+        return hContained(rect1, rect2);
     }
     return false;
 }
 
 function isEast(rect1, rect2, range){
-    if(rect2.left - rect1.right <= range){
-        return hReachable(rect1, rect2);
+    var distance = rect2.left - rect1.right;
+    if(distance > -1 && distance <= range){
+        return vContained(rect1, rect2);
     }
     return false;
 }
 
 function isSouth(rect1, rect2, range){
-    if(rect2.top - rect1.bottom <= range){
-        return vReachable(rect1, rect2);
+    var distance = rect2.top - rect1.bottom;
+    if(distance > -1 && distance <= range){
+        return hContained(rect1, rect2);
     }
     return false;
 }
@@ -471,46 +482,91 @@ function isSouth(rect1, rect2, range){
 //(h) horizontal
 //(v) vertical
 
-function hReachable(rect1, rect2, range){
-    var c = hCenter(rect1);
-    return rect2.bottom > c || rect2.top < c;
-    //return (rect2.top <= rect1.top && rect2.bottom > rect1.top);
+function hContained(rect1, rect2){
+    var c1 = hCenter(rect1);
+    return rect2.left >= rect1.left && rect2.left <= c1
+    || rect2.right <= rect1.right && rect2.right >= c1;
 }
 
-function vReachable(rect1, rect2){
-    var c = vCenter(rect1);
-    return rect2.right > c || rect2.left < c;
-    //return (rect2.left <= rect1.left && rect2.right > rect1.left);
+function vContained(rect1, rect2){
+    var c1 = vCenter(rect1);
+    return rect2.top >= rect1.top && rect2.top <= c1
+    || rect2.bottom <= rect1.bottom && rect2.bottom >= c1;
 }
 
 function vCenter(rect){
-    return rect.bottom - rect.top / 2;
+    return rect.top + height(rect) / 2;
 }
 
 function hCenter(rect){
-    return rect.right - rect.left / 2;
+    return rect.left + width(rect) / 2;
 }
+
+function height(rect){
+    return rect.bottom - rect.top;
+}
+
+function width(rect){
+    return rect.right - rect.left;
+}
+
+function westEdge(rect, range, parent){
+    var subject = document.elementFromPoint(
+        rect.left - range, rect.top + (height(rect) / 2));
+    return subject && parent !== subject.parentNode;
+}
+
+function northEdge(rect, range, parent){
+    var subject = document.elementFromPoint(
+        rect.left + (width(rect) / 2), rect.top - range);
+    return subject && parent !== subject.parentNode;
+}
+
+function eastEdge(rect, range, parent){
+    var subject = document.elementFromPoint(
+        rect.right + range, rect.top + (height(rect) / 2));
+    return subject && parent !== subject.parentNode;
+}
+
+function southEdge(rect, range, parent){
+    var subject = document.elementFromPoint(
+        rect.left + (width(rect) / 2), rect.bottom + range);
+    return subject && parent !== subject.parentNode;
+}
+
+
+//Visual testing
+/*function point(x, y){
+    let div = document.createElement('div');
+    div.style.width = '4px';
+    div.style.height = '4px';
+    div.style.backgroundColor = 'red';
+    div.style.position = 'absolute';
+    div.style.top = (y - 2) + 'px';
+    div.style.left = (x - 2) + 'px';
+    document.body.appendChild(div);
+}*/
 
 var directions = rawObject({
     left: function left(element, range, traverse){
         if ( traverse === void 0 ) traverse = 'prev';
 
-        return match(isWest, element, range, traverse);
+        return match(isWest, westEdge, element, range, traverse);
     },
     up: function up(element, range, traverse){
         if ( traverse === void 0 ) traverse = 'prev';
 
-        return match(isNorth, element, range, traverse);
+        return match(isNorth, northEdge, element, range, traverse);
     },
     right: function right(element, range, traverse){
         if ( traverse === void 0 ) traverse = 'next';
 
-        return match(isEast, element, range, traverse);
+        return match(isEast, eastEdge, element, range, traverse);
     },
     down: function down(element, range, traverse){
         if ( traverse === void 0 ) traverse = 'next';
 
-        return match(isSouth, element, range, traverse);
+        return match(isSouth, southEdge, element, range, traverse);
     }
 });
 
