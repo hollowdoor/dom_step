@@ -134,7 +134,7 @@ var isArguments = function isArguments(value) {
 };
 
 // modified from https://github.com/es-shims/es5-shim
-var has = Object.prototype.hasOwnProperty;
+var has$1 = Object.prototype.hasOwnProperty;
 var toStr$1 = Object.prototype.toString;
 var slice = Array.prototype.slice;
 
@@ -181,7 +181,7 @@ var hasAutomationEqualityBug = (function () {
 	if (typeof window === 'undefined') { return false; }
 	for (var k in window) {
 		try {
-			if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+			if (!excludedKeys['$' + k] && has$1.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
 				try {
 					equalsConstructorPrototype(window[k]);
 				} catch (e) {
@@ -218,7 +218,7 @@ var keysShim = function keys(object) {
 	}
 
 	var skipProto = hasProtoEnumBug && isFunction;
-	if (isString && object.length > 0 && !has.call(object, 0)) {
+	if (isString && object.length > 0 && !has$1.call(object, 0)) {
 		for (var i = 0; i < object.length; ++i) {
 			theKeys.push(String(i));
 		}
@@ -230,7 +230,7 @@ var keysShim = function keys(object) {
 		}
 	} else {
 		for (var name in object) {
-			if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+			if (!(skipProto && name === 'prototype') && has$1.call(object, name)) {
 				theKeys.push(String(name));
 			}
 		}
@@ -240,7 +240,7 @@ var keysShim = function keys(object) {
 		var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
 
 		for (var k = 0; k < dontEnums.length; ++k) {
-			if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
+			if (!(skipConstructor && dontEnums[k] === 'constructor') && has$1.call(object, dontEnums[k])) {
 				theKeys.push(dontEnums[k]);
 			}
 		}
@@ -511,27 +511,32 @@ function width(rect){
 }
 
 function westEdge(rect, range, parent){
-    var subject = document.elementFromPoint(
-        rect.left - range, rect.top + (height(rect) / 2));
-    return subject && parent !== subject.parentNode;
+    var subject = document
+        .elementFromPoint(rect.left - range, vCenter(rect));
+    return !has(parent, subject);
 }
 
 function northEdge(rect, range, parent){
-    var subject = document.elementFromPoint(
-        rect.left + (width(rect) / 2), rect.top - range);
-    return subject && parent !== subject.parentNode;
+    var subject = document
+        .elementFromPoint(hCenter(rect), rect.top - range);
+    return !has(parent, subject);
 }
 
 function eastEdge(rect, range, parent){
-    var subject = document.elementFromPoint(
-        rect.right + range, rect.top + (height(rect) / 2));
-    return subject && parent !== subject.parentNode;
+    var subject = document
+        .elementFromPoint(rect.right + range, vCenter(rect));
+    return !has(parent, subject);
 }
 
 function southEdge(rect, range, parent){
-    var subject = document.elementFromPoint(
-        rect.left + (width(rect) / 2), rect.bottom + range);
-    return subject && parent !== subject.parentNode;
+    var subject = document
+        .elementFromPoint(hCenter(rect), rect.bottom + range);
+    return !has(parent, subject);
+}
+
+function has(parent, child){
+    return child
+    && (parent === child.parentNode || parent.contains(child));
 }
 
 

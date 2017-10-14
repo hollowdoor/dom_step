@@ -62,27 +62,32 @@ function width(rect){
 }
 
 export function westEdge(rect, range, parent){
-    let subject = document.elementFromPoint(
-        rect.left - range, rect.top + (height(rect) / 2));
-    return subject && parent !== subject.parentNode;
+    let subject = document
+        .elementFromPoint(rect.left - range, vCenter(rect));
+    return !has(parent, subject);
 }
 
 export function northEdge(rect, range, parent){
-    let subject = document.elementFromPoint(
-        rect.left + (width(rect) / 2), rect.top - range);
-    return subject && parent !== subject.parentNode;
+    let subject = document
+        .elementFromPoint(hCenter(rect), rect.top - range);
+    return !has(parent, subject);
 }
 
 export function eastEdge(rect, range, parent){
-    let subject = document.elementFromPoint(
-        rect.right + range, rect.top + (height(rect) / 2));
-    return subject && parent !== subject.parentNode;
+    let subject = document
+        .elementFromPoint(rect.right + range, vCenter(rect));
+    return !has(parent, subject);
 }
 
 export function southEdge(rect, range, parent){
-    let subject = document.elementFromPoint(
-        rect.left + (width(rect) / 2), rect.bottom + range);
-    return subject && parent !== subject.parentNode;
+    let subject = document
+        .elementFromPoint(hCenter(rect), rect.bottom + range);
+    return !has(parent, subject);
+}
+
+function has(parent, child){
+    return child
+    && (parent === child.parentNode || parent.contains(child));
 }
 
 
