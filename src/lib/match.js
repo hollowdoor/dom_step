@@ -21,9 +21,19 @@ export default function match(isDirection, isEdge, element, range, traverse){
         let rect2 = getRect(current);
 
         if(isDirection(rect1, rect2, range)){
+            if(!isVisible(current)){
+                //This might be ok?
+                return match(isDirection, isEdge, current, range, traverse);
+            }
             return current;
         }
     }
+}
+
+//Some modules exist for this,
+//but they do runtime exports (not static)
+function isVisible(el){
+    return el.offsetParent !== null
 }
 
 //If there are problems with getBoundingClientRect
