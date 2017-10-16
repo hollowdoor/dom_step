@@ -55,6 +55,8 @@ console.log(two); //undefined
 Algorithm
 ------
 
+**Note:** This algorithm was abandoned in version 2. It is still somewhat relevant. The target next element would still be in the same position. Version 2 uses `document.elementFromPoint(x, y)` instead to find nearby elements.
+
 `dom-step` finds the nearest sibling element in the DOM. It does this by first checking the `element.nextElementSibling`, or `element.previousElementSibling` for down/right, or up/left respectively. Failing that it then checks other elements using a naive linear search through the rest of the siblings in the appropriate direction.
 
 To summarize the defaults:
@@ -79,24 +81,27 @@ At the intersection of the purple lines, gold lines, and blue rectangle a siblin
 
 ![see the github page if you can't see this svg diagram](svg/up1.svg "step up svg diagram")
 
-For certain CSS styles this could be unintuitive. For instance in CSS you can set `flex-direction` to `row-reverse`, or `column-reverse`.
-
-To fix a situation where the visual order of elements is the reverse of the programmatic order of the elements use the `traverse` option.
-
 ### options.traverse
 
-`options.traverse` can be set to `"next"` (next element), `"prev"` (previous element), or `undefined` for the default.
+Version 2 uses `elementFromPoint` so traversal isn't required. `options.traverse` does nothing.
+
+### options.wrap
+
+`options.wrap` was introduced in version 2.
+
+Set `options.wrap` to an integer greater than `0` to activate wrapping.
+
+Wrapping happens when the direction you choose crosses the edge of the parent of the element you pass to `domStep`.
 
 For instance:
 
 ```javascript
 import step from 'dom-step';
-//Assume flex-direction: column-reverse; for the list
 let list = document.querySelector('ol').children;
-let one = list[1];
-let two = step(one, 'down', {traverse: 'prev'});
-//one is the element at index 1
-//two is the element at index 0
-console.log(one.innerHTML); //Two
-console.log(two.innerHTML); //One
+let one = list[0];
+//'up' will go outside of the parent
+let two = step(one, 'up', {wrap: 10});
+console.log(one.innerHTML); //One
+//If the list has three elements
+console.log(two.innerHTML); //Three
 ```

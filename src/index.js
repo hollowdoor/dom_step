@@ -1,30 +1,100 @@
 import rawObject from 'raw-object';
 import localNaN from 'is-nan';
 import isElement from './lib/iselement.js';
-import match from './lib/match.js';
-import {
-    isWest, isNorth, isEast, isSouth,
-    westEdge, northEdge, eastEdge, southEdge
-} from './lib/compass.js';
+import has from './lib/has_child.js';
+import { getRect, height, width } from './lib/rect.js';
+import isVisible from './lib/is_visible.js';
+
+function result(directions, el, direction){
+    return isVisible(el)
+    ? el
+    : directions[direction](el);
+}
 
 const directions = rawObject({
-    left(element, range, traverse = 'prev'){
-        return match(isWest, westEdge, element, range, traverse);
+    left(element, range, wrap = 0){
+        let rect = getRect(element);
+        let x = rect.left - range,
+            y = rect.top + (height(rect) / 2);
+
+        let el = document.elementFromPoint(x, y);
+        if(has(element.parentNode, el)){
+            return result(this, el, 'left');
+        }
+
+        if(wrap){
+            let prect = getRect(element.parentNode);
+            x = prect.right - wrap;
+            let el = document.elementFromPoint(x, y);
+            if(has(element.parentNode, el)){
+                return result(this, el, 'left');
+            }
+        }
     },
-    up(element, range, traverse = 'prev'){
-        return match(isNorth, northEdge, element, range, traverse);
+    up(element, range, wrap = 0){
+        let rect = getRect(element);
+        let x = rect.left + (width(rect) / 2),
+            y = rect.top - range;
+
+        let el = document.elementFromPoint(x, y);
+        if(has(element.parentNode, el)){
+            return result(this, el, 'up');
+        }
+
+        if(wrap){
+            let prect = getRect(element.parentNode);
+            y = prect.top + wrap;
+            let el = document.elementFromPoint(x, y);
+            if(has(element.parentNode, el)){
+                return result(this, el, 'up');
+            }
+        }
     },
-    right(element, range, traverse = 'next'){
-        return match(isEast, eastEdge, element, range, traverse);
+    right(element, range, wrap = 0){
+        let rect = getRect(element);
+        let x = rect.right + range,
+            y = rect.top + (height(rect) / 2);
+
+        let el = document.elementFromPoint(x, y);
+        if(has(element.parentNode, el)){
+            return result(this, el, 'right');
+        }
+
+        if(wrap){
+            let prect = getRect(element.parentNode);
+            x = prect.left + wrap;
+
+            let el = document.elementFromPoint(x, y);
+            if(has(element.parentNode, el)){
+                return result(this, el, 'right');
+            }
+        }
     },
-    down(element, range, traverse = 'next'){
-        return match(isSouth, southEdge, element, range, traverse);
+    down(element, range, wrap = 0){
+        let rect = getRect(element);
+        let x = rect.left + (width(rect) / 2),
+            y = rect.bottom + range;
+
+        let el = document.elementFromPoint(x, y);
+        if(has(element.parentNode, el)){
+            return result(this, el, 'down');
+        }
+
+        if(wrap){
+            let prect = getRect(element.parentNode);
+            y = prect.bottom - wrap;
+
+            let el = document.elementFromPoint(x, y);
+            if(has(element.parentNode, el)){
+                return result(this, el, 'down');
+            }
+        }
     }
 });
 
 export default function step(element, direction, {
     range = 1,
-    traverse
+    wrap = 0
 } = {}){
 
     if(!isElement(element)){
@@ -35,13 +105,9 @@ export default function step(element, direction, {
         throw new TypeError(`direction should be up, down, left, or right. Instead direction is equal to ${direction}.`);
     }
 
-    if([undefined, 'next', 'prev'].indexOf(traverse) === -1){
-        throw new TypeError(`options.traverse should be "next", "prev", or undefined. Instead options.traverse is equal to ${traverse}.`);
-    }
-
     if(localNaN(range)){
         throw new TypeError(`options.range should be a number. Instead options.range is equal to ${range}`);
     }
 
-    return directions[direction](element, range, traverse);
+    return directions[direction](element, range, wrap);
 }
