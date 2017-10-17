@@ -134,7 +134,7 @@ var isArguments = function isArguments(value) {
 };
 
 // modified from https://github.com/es-shims/es5-shim
-var has$1 = Object.prototype.hasOwnProperty;
+var has = Object.prototype.hasOwnProperty;
 var toStr$1 = Object.prototype.toString;
 var slice = Array.prototype.slice;
 
@@ -181,7 +181,7 @@ var hasAutomationEqualityBug = (function () {
 	if (typeof window === 'undefined') { return false; }
 	for (var k in window) {
 		try {
-			if (!excludedKeys['$' + k] && has$1.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+			if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
 				try {
 					equalsConstructorPrototype(window[k]);
 				} catch (e) {
@@ -218,7 +218,7 @@ var keysShim = function keys(object) {
 	}
 
 	var skipProto = hasProtoEnumBug && isFunction;
-	if (isString && object.length > 0 && !has$1.call(object, 0)) {
+	if (isString && object.length > 0 && !has.call(object, 0)) {
 		for (var i = 0; i < object.length; ++i) {
 			theKeys.push(String(i));
 		}
@@ -230,7 +230,7 @@ var keysShim = function keys(object) {
 		}
 	} else {
 		for (var name in object) {
-			if (!(skipProto && name === 'prototype') && has$1.call(object, name)) {
+			if (!(skipProto && name === 'prototype') && has.call(object, name)) {
 				theKeys.push(String(name));
 			}
 		}
@@ -240,7 +240,7 @@ var keysShim = function keys(object) {
 		var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
 
 		for (var k = 0; k < dontEnums.length; ++k) {
-			if (!(skipConstructor && dontEnums[k] === 'constructor') && has$1.call(object, dontEnums[k])) {
+			if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
 				theKeys.push(dontEnums[k]);
 			}
 		}
@@ -385,11 +385,6 @@ function isElement(input){
     && (typeof input.ownerDocument === 'object');
 }
 
-function has(parent, child){
-    return child !== parent
-    && (parent === child.parentNode && parent.contains(child));
-}
-
 //If there are problems with getBoundingClientRect
 //See https://github.com/webmodules/bounding-client-rect
 function getRect(e){
@@ -416,6 +411,20 @@ function result(directions, el, direction){
     : directions[direction](el);
 }
 
+function getSibling(element, x, y){
+    var el = document.elementFromPoint(x, y);
+    var parent = el, i=0, limit = 5;
+    if(!el) { return; }
+    for(var i$1=0; i$1<limit; i$1++){
+        el = parent;
+        if(!el) { return; }
+        parent = el.parentNode;
+        if(parent === element.parentNode){
+            return el;
+        }
+    }
+}
+
 var directions = rawObject({
     left: function left(element, range, wrap){
         if ( wrap === void 0 ) { wrap = 0; }
@@ -424,16 +433,16 @@ var directions = rawObject({
         var x = rect.left - range,
             y = rect.top + (height(rect) / 2);
 
-        var el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        var el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'left');
         }
 
         if(wrap){
             var prect = getRect(element.parentNode);
             x = prect.right - wrap;
-            var el$1 = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el$1)){
+            var el$1 = getSibling(element, x, y);
+            if(el$1){
                 return result(this, el$1, 'left');
             }
         }
@@ -445,17 +454,16 @@ var directions = rawObject({
         var x = rect.left + (width(rect) / 2),
             y = rect.top - range;
 
-        var el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        var el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'up');
         }
 
         if(wrap){
             var prect = getRect(element.parentNode);
             y = prect.bottom - wrap;
-            //point(x, y);
-            var el$1 = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el$1)){
+            var el$1 = getSibling(element, x, y);
+            if(el$1){
                 return result(this, el$1, 'up');
             }
         }
@@ -467,8 +475,8 @@ var directions = rawObject({
         var x = rect.right + range,
             y = rect.top + (height(rect) / 2);
 
-        var el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        var el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'right');
         }
 
@@ -476,8 +484,8 @@ var directions = rawObject({
             var prect = getRect(element.parentNode);
             x = prect.left + wrap;
 
-            var el$1 = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el$1)){
+            var el$1 = getSibling(element, x, y);
+            if(el$1){
                 return result(this, el$1, 'right');
             }
         }
@@ -489,8 +497,8 @@ var directions = rawObject({
         var x = rect.left + (width(rect) / 2),
             y = rect.bottom + range;
 
-        var el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        var el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'down');
         }
 
@@ -498,8 +506,8 @@ var directions = rawObject({
             var prect = getRect(element.parentNode);
             y = prect.top + wrap;
 
-            var el$1 = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el$1)){
+            var el$1 = getSibling(element, x, y);
+            if(el$1){
                 return result(this, el$1, 'down');
             }
         }

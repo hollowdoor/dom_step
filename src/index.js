@@ -12,22 +12,36 @@ function result(directions, el, direction){
     : directions[direction](el);
 }
 
+function getSibling(element, x, y){
+    let el = document.elementFromPoint(x, y);
+    let parent = el, i=0, limit = 5;
+    if(!el) return;
+    for(let i=0; i<limit; i++){
+        el = parent;
+        if(!el) return;
+        parent = el.parentNode;
+        if(parent === element.parentNode){
+            return el;
+        }
+    }
+}
+
 const directions = rawObject({
     left(element, range, wrap = 0){
         let rect = getRect(element);
         let x = rect.left - range,
             y = rect.top + (height(rect) / 2);
 
-        let el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        let el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'left');
         }
 
         if(wrap){
             let prect = getRect(element.parentNode);
             x = prect.right - wrap;
-            let el = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el)){
+            let el = getSibling(element, x, y);
+            if(el){
                 return result(this, el, 'left');
             }
         }
@@ -37,17 +51,16 @@ const directions = rawObject({
         let x = rect.left + (width(rect) / 2),
             y = rect.top - range;
 
-        let el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        let el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'up');
         }
 
         if(wrap){
             let prect = getRect(element.parentNode);
             y = prect.bottom - wrap;
-            //point(x, y);
-            let el = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el)){
+            let el = getSibling(element, x, y);
+            if(el){
                 return result(this, el, 'up');
             }
         }
@@ -57,8 +70,8 @@ const directions = rawObject({
         let x = rect.right + range,
             y = rect.top + (height(rect) / 2);
 
-        let el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        let el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'right');
         }
 
@@ -66,8 +79,8 @@ const directions = rawObject({
             let prect = getRect(element.parentNode);
             x = prect.left + wrap;
 
-            let el = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el)){
+            let el = getSibling(element, x, y);
+            if(el){
                 return result(this, el, 'right');
             }
         }
@@ -77,8 +90,8 @@ const directions = rawObject({
         let x = rect.left + (width(rect) / 2),
             y = rect.bottom + range;
 
-        let el = document.elementFromPoint(x, y);
-        if(has(element.parentNode, el)){
+        let el = getSibling(element, x, y);
+        if(el){
             return result(this, el, 'down');
         }
 
@@ -86,8 +99,8 @@ const directions = rawObject({
             let prect = getRect(element.parentNode);
             y = prect.top + wrap;
 
-            let el = document.elementFromPoint(x, y);
-            if(has(element.parentNode, el)){
+            let el = getSibling(element, x, y);
+            if(el){
                 return result(this, el, 'down');
             }
         }
