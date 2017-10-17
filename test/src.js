@@ -39,7 +39,10 @@ one(1, 'left');
 console.log('- edges -');
 one(3, 'down');
 one(1, 'right');
-one(0, 'left', {wrap: 20});
+one(0, 'left', {wrap: 5});
+one(3, 'down', {wrap: 15});
+one(1, 'right', {wrap: 5});
+one(1, 'up', {wrap: 5});
 
 function loop(n, last, fn){
     try{

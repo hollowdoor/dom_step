@@ -4,6 +4,7 @@ import isElement from './lib/iselement.js';
 import has from './lib/has_child.js';
 import { getRect, height, width } from './lib/rect.js';
 import isVisible from './lib/is_visible.js';
+import point from './lib/point.js';
 
 function result(directions, el, direction){
     return isVisible(el)
@@ -43,7 +44,8 @@ const directions = rawObject({
 
         if(wrap){
             let prect = getRect(element.parentNode);
-            y = prect.top + wrap;
+            y = prect.bottom - wrap;
+            //point(x, y);
             let el = document.elementFromPoint(x, y);
             if(has(element.parentNode, el)){
                 return result(this, el, 'up');
@@ -82,7 +84,7 @@ const directions = rawObject({
 
         if(wrap){
             let prect = getRect(element.parentNode);
-            y = prect.bottom - wrap;
+            y = prect.top + wrap;
 
             let el = document.elementFromPoint(x, y);
             if(has(element.parentNode, el)){

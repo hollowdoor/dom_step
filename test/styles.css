@@ -17,9 +17,11 @@ li {
 }
 
 #flowing {
-    width: 110px;
+    width: 105px;
     border: 2px solid red;
     padding: 0;
+    overflow: hidden;
+    margin: 0;
 }
 #flowing li {
     list-style: none;

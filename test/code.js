@@ -386,8 +386,8 @@ function isElement(input){
 }
 
 function has(parent, child){
-    return child
-    && (parent === child.parentNode || parent.contains(child));
+    return child !== parent
+    && (parent === child.parentNode && parent.contains(child));
 }
 
 //If there are problems with getBoundingClientRect
@@ -452,7 +452,8 @@ var directions = rawObject({
 
         if(wrap){
             var prect = getRect(element.parentNode);
-            y = prect.top + wrap;
+            y = prect.bottom - wrap;
+            //point(x, y);
             var el$1 = document.elementFromPoint(x, y);
             if(has(element.parentNode, el$1)){
                 return result(this, el$1, 'up');
@@ -495,7 +496,7 @@ var directions = rawObject({
 
         if(wrap){
             var prect = getRect(element.parentNode);
-            y = prect.bottom - wrap;
+            y = prect.top + wrap;
 
             var el$1 = document.elementFromPoint(x, y);
             if(has(element.parentNode, el$1)){
@@ -566,7 +567,10 @@ one(1, 'left');
 console.log('- edges -');
 one(3, 'down');
 one(1, 'right');
-one(0, 'left', {wrap: 20});
+one(0, 'left', {wrap: 5});
+one(3, 'down', {wrap: 15});
+one(1, 'right', {wrap: 5});
+one(1, 'up', {wrap: 5});
 
 function loop(n, last, fn){
     try{
